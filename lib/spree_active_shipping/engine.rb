@@ -21,6 +21,9 @@ module SpreeActiveShippingExtension
     config.to_prepare &method(:activate).to_proc
 
     initializer "spree_active_shipping.register.calculators" do |app|
+      req_base = File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/active_shipping/base.rb")
+      Rails.env.production? ? require(req_base) : load(req_base)
+
       Dir.glob(File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/**/*.rb")) do |c|
         Rails.env.production? ? require(c) : load(c)
       end
