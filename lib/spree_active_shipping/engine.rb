@@ -8,8 +8,12 @@ module SpreeActiveShippingExtension
     end
 
     def self.activate
-      Dir.glob(File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/**/base.rb")) do |c|
+      Dir[File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/**/base.rb")].sort.each do |c|
         Rails.env.production? ? require(c) : load(c)
+      end
+
+      Dir.glob(File.join(File.dirname(__FILE__), "../../app/**/*_decorator*.rb")) do |c|
+        Rails.configuration.cache_classes ? require(c) : load(c)
       end
 
       #Only required until following active_shipping commit is merged (add negotiated rates).
@@ -21,10 +25,7 @@ module SpreeActiveShippingExtension
     config.to_prepare &method(:activate).to_proc
 
     initializer "spree_active_shipping.register.calculators" do |app|
-      req_base = File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/active_shipping/base.rb")
-      Rails.env.production? ? require(req_base) : load(req_base)
-
-      Dir.glob(File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/**/*.rb")) do |c|
+      Dir[File.join(File.dirname(__FILE__), "../../app/models/spree/calculator/**/*.rb")].sort.each do |c|
         Rails.env.production? ? require(c) : load(c)
       end
 
